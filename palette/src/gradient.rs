@@ -5,8 +5,9 @@
 
 use num_traits::{One, Zero};
 use float::Float;
-use std::cmp::max;
+use core::cmp::max;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use std_alloc::Vec;
 
 use cast;
 
@@ -270,8 +271,8 @@ impl<T: Float> Range<T> {
     }
 }
 
-impl<T: Float> From<::std::ops::Range<T>> for Range<T> {
-    fn from(range: ::std::ops::Range<T>) -> Range<T> {
+impl<T: Float> From<::core::ops::Range<T>> for Range<T> {
+    fn from(range: ::core::ops::Range<T>) -> Range<T> {
         Range {
             from: Some(range.start),
             to: Some(range.end),
@@ -279,8 +280,8 @@ impl<T: Float> From<::std::ops::Range<T>> for Range<T> {
     }
 }
 
-impl<T: Float> From<::std::ops::RangeFrom<T>> for Range<T> {
-    fn from(range: ::std::ops::RangeFrom<T>) -> Range<T> {
+impl<T: Float> From<::core::ops::RangeFrom<T>> for Range<T> {
+    fn from(range: ::core::ops::RangeFrom<T>) -> Range<T> {
         Range {
             from: Some(range.start),
             to: None,
@@ -288,8 +289,8 @@ impl<T: Float> From<::std::ops::RangeFrom<T>> for Range<T> {
     }
 }
 
-impl<T: Float> From<::std::ops::RangeTo<T>> for Range<T> {
-    fn from(range: ::std::ops::RangeTo<T>) -> Range<T> {
+impl<T: Float> From<::core::ops::RangeTo<T>> for Range<T> {
+    fn from(range: ::core::ops::RangeTo<T>) -> Range<T> {
         Range {
             from: None,
             to: Some(range.end),
@@ -297,8 +298,8 @@ impl<T: Float> From<::std::ops::RangeTo<T>> for Range<T> {
     }
 }
 
-impl<T: Float> From<::std::ops::RangeFull> for Range<T> {
-    fn from(_range: ::std::ops::RangeFull) -> Range<T> {
+impl<T: Float> From<::core::ops::RangeFull> for Range<T> {
+    fn from(_range: ::core::ops::RangeFull) -> Range<T> {
         Range {
             from: None,
             to: None,
