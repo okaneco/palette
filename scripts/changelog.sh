@@ -49,10 +49,10 @@ git log --pretty="%an<%ae>;%H;%ad;%s" --date=short |
 	echo -e "The first published version.\n" >> CHANGELOG.md
 
 	for id in ${pulls[@]}; do
-		echo "[$id]: https://github.com/Ogeon/palette/pull/$id" >> CHANGELOG.md
+		echo "[$id]: https://github.com/okaneco/palette/pull/$id" >> CHANGELOG.md
 	done
 
 	for id in ${issues[@]}; do
-		echo "[$id]: https://github.com/Ogeon/palette/issues/$id" >> CHANGELOG.md
+		echo "[$id]: https://github.com/okaneco/palette/issues/$id" >> CHANGELOG.md
 	done
 }

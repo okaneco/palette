@@ -12,10 +12,7 @@ os:
   - osx
 branches:
   only:
-    - master
-    - staging
-    - trying
-    - /^\d+\.\d+$/
+    - dev
 script:
   - cd palette_derive
   - cargo build -v --features strict

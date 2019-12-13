@@ -1,6 +1,6 @@
 # palette
 
-[![Build Status](https://travis-ci.org/Ogeon/palette.svg?branch=master)](https://travis-ci.org/Ogeon/palette)
+[![Build Status](https://travis-ci.org/okaneco/palette.svg?branch=dev)](https://travis-ci.org/okaneco/palette)
 [![Crates.io](https://img.shields.io/crates/v/palette.svg)](https://crates.io/crates/palette/)
 
 A Rust library that makes linear color calculations and conversion easy and accessible for anyone. It provides both precision tools that lets you work in exactly the color space you want to, as well as a general color type that abstracts away some of the technical details.
