@@ -12,12 +12,10 @@ env:
 os:
   - linux
   - osx
+dist: bionic
 branches:
   only:
-    - master
-    - staging
-    - trying
-    - /^\d+\.\d+$/
+    - dev
 script:
   - cd palette_derive
   - cargo build -v

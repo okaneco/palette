@@ -1,6 +1,6 @@
 # palette
 
-[![Build Status](https://travis-ci.org/Ogeon/palette.svg?branch=master)](https://travis-ci.org/Ogeon/palette)
+[![Build Status](https://travis-ci.org/okaneco/palette.svg?branch=dev)](https://travis-ci.org/okaneco/palette)
 [![Crates.io](https://img.shields.io/crates/v/palette.svg)](https://crates.io/crates/palette/)
 [![Docs.rs](https://docs.rs/palette/badge.svg)](https://docs.rs/palette)
 
