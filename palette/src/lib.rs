@@ -172,7 +172,20 @@ pub use palette_derive::*;
 
 pub use alpha::Alpha;
 pub use blend::Blend;
+
 #[cfg(feature = "std")]
+mod std_alloc {
+    pub use std::vec::Vec;
+}
+
+#[cfg(not(feature = "std"))]
+extern crate alloc;
+
+#[cfg(not(feature = "std"))]
+mod std_alloc {
+    pub use alloc::vec::Vec;
+}
+
 pub use gradient::Gradient;
 
 pub use hsl::{Hsl, Hsla};
@@ -346,7 +359,7 @@ macro_rules! assert_ranges {
 mod macros;
 
 pub mod blend;
-#[cfg(feature = "std")]
+
 pub mod gradient;
 
 #[cfg(feature = "named")]
