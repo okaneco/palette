@@ -44,6 +44,10 @@ fn start(_argc: isize, _argv: *const *const u8) -> isize {
 #[lang = "eh_personality"]
 extern fn eh_personality() {}
 
+#[lang = "eh_unwind_resume"]
+#[no_mangle]
+pub extern fn rust_eh_unwind_resume() {}
+
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}
