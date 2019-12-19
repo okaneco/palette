@@ -10,6 +10,8 @@ rust:
 os:
   - linux
   - osx
+dist:
+  - bionic
 branches:
   only:
     - master
