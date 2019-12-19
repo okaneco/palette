@@ -10,8 +10,6 @@ rust:
 os:
   - linux
   - osx
-dist:
-  - bionic
 branches:
   only:
     - master
@@ -29,7 +27,7 @@ script:
 
   - if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
       cd ../no_std_test;
-      cargo build -v -Z config-profile;
+      cargo build -v -Z config-profile --release;
     fi
 
   - if [ "$TRAVIS_RUST_VERSION" = "nightly" ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then
