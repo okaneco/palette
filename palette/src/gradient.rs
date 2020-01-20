@@ -5,7 +5,7 @@
 
 use num_traits::{One, Zero};
 use float::Float;
-use std::cmp::max;
+use core::cmp::max;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 
 use cast;
@@ -307,8 +307,8 @@ impl<T: Float> Range<T> {
     }
 }
 
-impl<T: Float> From<::std::ops::Range<T>> for Range<T> {
-    fn from(range: ::std::ops::Range<T>) -> Range<T> {
+impl<T: Float> From<::core::ops::Range<T>> for Range<T> {
+    fn from(range: ::core::ops::Range<T>) -> Range<T> {
         Range {
             from: Some(range.start),
             to: Some(range.end),
@@ -316,8 +316,8 @@ impl<T: Float> From<::std::ops::Range<T>> for Range<T> {
     }
 }
 
-impl<T: Float> From<::std::ops::RangeFrom<T>> for Range<T> {
-    fn from(range: ::std::ops::RangeFrom<T>) -> Range<T> {
+impl<T: Float> From<::core::ops::RangeFrom<T>> for Range<T> {
+    fn from(range: ::core::ops::RangeFrom<T>) -> Range<T> {
         Range {
             from: Some(range.start),
             to: None,
@@ -325,8 +325,8 @@ impl<T: Float> From<::std::ops::RangeFrom<T>> for Range<T> {
     }
 }
 
-impl<T: Float> From<::std::ops::RangeTo<T>> for Range<T> {
-    fn from(range: ::std::ops::RangeTo<T>) -> Range<T> {
+impl<T: Float> From<::core::ops::RangeTo<T>> for Range<T> {
+    fn from(range: ::core::ops::RangeTo<T>) -> Range<T> {
         Range {
             from: None,
             to: Some(range.end),
@@ -334,11 +334,29 @@ impl<T: Float> From<::std::ops::RangeTo<T>> for Range<T> {
     }
 }
 
-impl<T: Float> From<::std::ops::RangeFull> for Range<T> {
-    fn from(_range: ::std::ops::RangeFull) -> Range<T> {
+impl<T: Float> From<::core::ops::RangeFull> for Range<T> {
+    fn from(_range: ::core::ops::RangeFull) -> Range<T> {
         Range {
             from: None,
             to: None,
+        }
+    }
+}
+
+impl<T: Float> From<::core::ops::RangeInclusive<T>> for Range<T> {
+    fn from(range: ::core::ops::RangeInclusive<T>) -> Range<T> {
+        Range {
+            from: Some(*range.start()),
+            to: Some(*range.end()),
+        }
+    }
+}
+
+impl<T: Float> From<::core::ops::RangeToInclusive<T>> for Range<T> {
+    fn from(range: ::core::ops::RangeToInclusive<T>) -> Range<T> {
+        Range {
+            from: None,
+            to: Some(range.end),
         }
     }
 }
@@ -466,6 +484,25 @@ mod test {
         assert_relative_eq!(range.constrain(&(0.2..5.0).into()), (0.2..1.0).into());
 
         assert_relative_eq!(range.constrain(&(0.2..0.8).into()), (0.2..0.8).into());
+    }
+
+    #[test]
+    fn range_inclusive_and_to_inclusive() {
+        //RangeInclusive
+        let r1: Range<f64> = (0.0..=1.0).into();
+        assert_eq!(r1.to, Some(1.0));
+
+        // RangeToInclusive
+        let g1 = Gradient::new(vec![
+            LinSrgb::new(1.0, 0.0, 0.0),
+            LinSrgb::new(0.0, 0.0, 1.0),
+        ]);
+        let g2 = g1.slice(..=0.5);
+        let v1: Vec<_> = g1.take(9).take(5).collect();
+        let v2: Vec<_> = g2.take(5).collect();
+        for (t1, t2) in v1.iter().zip(v2.iter()) {
+            assert_relative_eq!(t1, t2);
+        }
     }
 
     #[test]
