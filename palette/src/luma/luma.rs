@@ -5,12 +5,13 @@ use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 
 use blend::PreAlpha;
-use clamp;
 use encoding::linear::LinearFn;
 use encoding::pixel::RawPixel;
 use encoding::{Linear, Srgb, TransferFn};
+use luma::relative_contrast::wcag::RelativeContrast;
 use luma::LumaStandard;
 use white_point::WhitePoint;
+use {clamp, from_f64};
 use {Alpha, Xyz, Yxy};
 use {
     Blend, Component, ComponentWise, FloatComponent, FromColor, FromComponent, IntoColor, Limited,
@@ -725,10 +726,44 @@ where
     }
 }
 
+impl<S, T> RelativeContrast for Luma<S, T>
+where
+    T: FloatComponent,
+    S: LumaStandard,
+{
+    type Scalar = T;
+
+    fn get_contrast_ratio(&self, other: &Self) -> T {
+        if self.luma > other.luma {
+            (self.into_linear().luma + from_f64(0.05)) / (other.into_linear().luma + from_f64(0.05))
+        } else {
+            (other.into_linear().luma + from_f64(0.05)) / (self.into_linear().luma + from_f64(0.05))
+        }
+    }
+
+    fn is_min_contrast(&self, other: &Self) -> bool {
+        self.get_contrast_ratio(other) >= from_f64(4.5)
+    }
+
+    fn is_min_contrast_large(&self, other: &Self) -> bool {
+        self.get_contrast_ratio(other) >= from_f64(3.0)
+    }
+
+    fn is_enhanced_contrast(&self, other: &Self) -> bool {
+        self.get_contrast_ratio(other) >= from_f64(7.0)
+    }
+
+    fn is_enhanced_contrast_large(&self, other: &Self) -> bool {
+        self.is_min_contrast(other)
+    }
+}
+
 #[cfg(test)]
 mod test {
+    use core::str::FromStr;
     use encoding::Srgb;
-    use Luma;
+    use rgb::Rgb;
+    use {Luma, RelativeContrast};
 
     #[test]
     fn ranges() {
@@ -790,6 +825,51 @@ mod test {
         assert_eq!(format!("{:03X}", Luma::<Srgb, u16>::new(1)), "001");
         assert_eq!(format!("{:03X}", Luma::<Srgb, u32>::new(1)), "001");
         assert_eq!(format!("{:03X}", Luma::<Srgb, u64>::new(1)), "001");
+    }
+
+    #[test]
+    fn relative_contrast() {
+        let white: Luma<Srgb, _> = Rgb::<Srgb, _>::new(1.0, 1.0, 1.0).into();
+        let black: Luma<Srgb, _> = Rgb::<Srgb, _>::new(0.0, 0.0, 0.0).into();
+
+        assert_relative_eq!(white.get_contrast_ratio(&white), 1.0);
+        assert_relative_eq!(white.get_contrast_ratio(&black), 21.0);
+        assert_relative_eq!(
+            white.get_contrast_ratio(&black),
+            black.get_contrast_ratio(&white)
+        );
+
+        let c1: Luma<Srgb, f32> = Rgb::<Srgb, u8>::from_str("#600")
+            .unwrap()
+            .into_format()
+            .into();
+
+        assert_relative_eq!(c1.get_contrast_ratio(&white), 13.41, epsilon = 0.01);
+        assert_relative_eq!(c1.get_contrast_ratio(&black), 1.56, epsilon = 0.01);
+        assert!(c1.is_min_contrast(&white));
+        assert!(c1.is_min_contrast_large(&white));
+        assert!(c1.is_enhanced_contrast(&white));
+        assert!(c1.is_enhanced_contrast_large(&white));
+        assert!(c1.is_min_contrast(&black) == false);
+        assert!(c1.is_min_contrast_large(&black) == false);
+        assert!(c1.is_enhanced_contrast(&black) == false);
+        assert!(c1.is_enhanced_contrast_large(&black) == false);
+
+        let c1: Luma<Srgb, f32> = Rgb::<Srgb, u8>::from_str("#066")
+            .unwrap()
+            .into_format()
+            .into();
+
+        assert_relative_eq!(c1.get_contrast_ratio(&white), 6.79, epsilon = 0.01);
+        assert_relative_eq!(c1.get_contrast_ratio(&black), 3.09, epsilon = 0.01);
+
+        let c1: Luma<Srgb, f32> = Rgb::<Srgb, u8>::from_str("#9f9")
+            .unwrap()
+            .into_format()
+            .into();
+
+        assert_relative_eq!(c1.get_contrast_ratio(&white), 1.22, epsilon = 0.01);
+        assert_relative_eq!(c1.get_contrast_ratio(&black), 17.11, epsilon = 0.01);
     }
 
     #[cfg(feature = "serializing")]

@@ -10,10 +10,12 @@ rust:
 os:
   - linux
   - osx
-dist: bionic
 branches:
   only:
-    - dev
+    - master
+    - staging
+    - trying
+    - /^\d+\.\d+$/
 script:
   - cd palette_derive
   - cargo build -v --features strict

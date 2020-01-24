@@ -188,6 +188,7 @@ pub use component::*;
 pub use convert::{ConvertFrom, ConvertInto, FromColor, IntoColor, OutOfBounds};
 pub use encoding::pixel::Pixel;
 pub use hues::{LabHue, RgbHue};
+pub use luma::RelativeContrast;
 pub use matrix::Mat3;
 
 //Helper macro for checking ranges and clamping.

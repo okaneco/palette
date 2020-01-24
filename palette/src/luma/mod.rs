@@ -1,11 +1,13 @@
 //! Luminance types.
 
 mod luma;
+mod relative_contrast;
 
-use white_point::{D65, WhitePoint};
 use encoding::{Gamma, Linear, Srgb, TransferFn};
+use white_point::{WhitePoint, D65};
 
 pub use self::luma::{Luma, Lumaa};
+pub use self::relative_contrast::wcag::RelativeContrast;
 
 /// sRGB encoded luminance.
 pub type SrgbLuma<T = f32> = Luma<Srgb, T>;
