@@ -34,6 +34,8 @@ use crate::{FloatComponent, Xyz};
 pub enum Method {
     /// Bradford chromatic adaptation method
     Bradford,
+    /// CAT02 chromatic adaptation method
+    Cat02,
     /// VonKries chromatic adaptation method
     VonKries,
     /// XyzScaling chromatic adaptation method
@@ -106,6 +108,20 @@ where
                         from_f64(0.9869929), from_f64(-0.1470543), from_f64(0.1599627),
                         from_f64(0.4323053), from_f64(0.5183603), from_f64(0.0492912),
                         from_f64(-0.0085287), from_f64(0.0400428), from_f64(0.9684867)
+                    ],
+                }
+            }
+            Method::Cat02 => {
+                ConeResponseMatrices::<T> {
+                    ma: [
+                        from_f64(0.7328000), from_f64(0.4296000), from_f64(-0.1624000),
+                        from_f64(-0.7036000), from_f64(1.6975000), from_f64(0.0061000),
+                        from_f64(0.0030000), from_f64(0.0136000), from_f64(0.9834000)
+                    ],
+                    inv_ma: [
+                        from_f64(1.0961240), from_f64(-0.2788690), from_f64(0.1827450),
+                        from_f64(0.4543690), from_f64(0.4735330), from_f64(0.0720980),
+                        from_f64(-0.0096280), from_f64(-0.0056980), from_f64(1.0153260)
                     ],
                 }
             }
@@ -253,15 +269,32 @@ mod test {
     }
 
     #[test]
+    fn d65_to_d50_matrix_cat02() {
+        let expected = [
+            1.0424829, 0.0308013, -0.0527445, 0.0221297, 1.0018818, -0.0210460, -0.0011632,
+            -0.0034172, 0.7620408,
+        ];
+        let cat02 = Method::Cat02;
+        let computed = <dyn TransformMatrix<D65, D50, _>>::generate_transform_matrix(&cat02);
+        for (e, c) in expected.iter().zip(computed.iter()) {
+            assert_relative_eq!(e, c, epsilon = 0.0001)
+        }
+    }
+
+    #[test]
     fn chromatic_adaptation_from_a_to_c() {
         let input_a = Xyz::<A, f32>::with_wp(0.315756, 0.162732, 0.015905);
 
         let expected_bradford = Xyz::<C, f32>::with_wp(0.257963, 0.139776, 0.058825);
+        let expected_cat02 = Xyz::<C, f32>::with_wp(0.260577, 0.1427337, 0.058690);
         let expected_vonkries = Xyz::<C, f32>::with_wp(0.268446, 0.159139, 0.052843);
         let expected_xyz_scaling = Xyz::<C, f32>::with_wp(0.281868, 0.162732, 0.052844);
 
         let computed_bradford: Xyz<C, f32> = Xyz::adapt_from(input_a);
         assert_relative_eq!(expected_bradford, computed_bradford, epsilon = 0.0001);
+
+        let computed_cat02: Xyz<C, _> = Xyz::adapt_from_using(input_a, Method::Cat02);
+        assert_relative_eq!(expected_cat02, computed_cat02, epsilon = 0.0001);
 
         let computed_vonkries: Xyz<C, f32> = Xyz::adapt_from_using(input_a, Method::VonKries);
         assert_relative_eq!(expected_vonkries, computed_vonkries, epsilon = 0.0001);
@@ -275,11 +308,15 @@ mod test {
         let input_a = Xyz::<A, f32>::with_wp(0.315756, 0.162732, 0.015905);
 
         let expected_bradford = Xyz::<C, f32>::with_wp(0.257963, 0.139776, 0.058825);
+        let expected_cat02 = Xyz::<C, f32>::with_wp(0.260577, 0.1427337, 0.058690);
         let expected_vonkries = Xyz::<C, f32>::with_wp(0.268446, 0.159139, 0.052843);
         let expected_xyz_scaling = Xyz::<C, f32>::with_wp(0.281868, 0.162732, 0.052844);
 
         let computed_bradford: Xyz<C, f32> = input_a.adapt_into();
         assert_relative_eq!(expected_bradford, computed_bradford, epsilon = 0.0001);
+
+        let computed_cat02: Xyz<C, _> = input_a.adapt_into_using(Method::Cat02);
+        assert_relative_eq!(expected_cat02, computed_cat02, epsilon = 0.0001);
 
         let computed_vonkries: Xyz<C, f32> = input_a.adapt_into_using(Method::VonKries);
         assert_relative_eq!(expected_vonkries, computed_vonkries, epsilon = 0.0001);
