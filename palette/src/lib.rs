@@ -190,6 +190,7 @@ pub use blend::Blend;
 #[cfg(feature = "std")]
 pub use gradient::Gradient;
 
+pub use cam::{Jch, Jcha};
 pub use hsl::{Hsl, Hsla};
 pub use hsv::{Hsv, Hsva};
 pub use hwb::{Hwb, Hwba};
@@ -204,7 +205,7 @@ pub use color_difference::ColorDifference;
 pub use component::*;
 pub use convert::{FromColor, IntoColor};
 pub use encoding::pixel::Pixel;
-pub use hues::{LabHue, RgbHue};
+pub use hues::{CamHue, LabHue, RgbHue};
 pub use matrix::Mat3;
 pub use relative_contrast::{contrast_ratio, RelativeContrast};
 
@@ -373,6 +374,7 @@ pub mod named;
 mod random_sampling;
 
 mod alpha;
+mod cam;
 mod hsl;
 mod hsv;
 mod hwb;

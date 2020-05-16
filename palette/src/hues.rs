@@ -261,6 +261,13 @@ macro_rules! make_hues {
 }
 
 make_hues! {
+    /// A hue type for the CIECAM02 family of color spaces.
+    ///
+    /// It's measured in degrees and complementary colors are found on opposing
+    /// angles of the hue circle. This hue type is not equivalent to the Lab
+    /// variant although it is technically similar.
+    struct CamHue;
+
     /// A hue type for the CIE L\*a\*b\* family of color spaces.
     ///
     /// It's measured in degrees and it's based on the four physiological
@@ -286,6 +293,66 @@ fn normalize_angle<T: Float + FromF64>(deg: T) -> T {
 fn normalize_angle_positive<T: Float + FromF64>(deg: T) -> T {
     let c360 = from_f64(360.0);
     deg - ((deg / c360).floor() * c360)
+}
+
+#[cfg(feature = "random")]
+pub struct UniformCamHue<T>
+where
+    T: Float + FromF64 + SampleUniform,
+{
+    hue: Uniform<T>,
+}
+
+#[cfg(feature = "random")]
+impl<T> SampleUniform for CamHue<T>
+where
+    T: Float + FromF64 + SampleUniform,
+{
+    type Sampler = UniformCamHue<T>;
+}
+
+#[cfg(feature = "random")]
+impl<T> UniformSampler for UniformCamHue<T>
+where
+    T: Float + FromF64 + SampleUniform,
+{
+    type X = CamHue<T>;
+
+    fn new<B1, B2>(low_b: B1, high_b: B2) -> Self
+    where
+        B1: SampleBorrow<Self::X> + Sized,
+        B2: SampleBorrow<Self::X> + Sized,
+    {
+        let low = *low_b.borrow();
+        let high = *high_b.borrow();
+
+        UniformCamHue {
+            hue: Uniform::new(
+                CamHue::to_positive_degrees(low),
+                CamHue::to_positive_degrees(high),
+            ),
+        }
+    }
+
+    fn new_inclusive<B1, B2>(low_b: B1, high_b: B2) -> Self
+    where
+        B1: SampleBorrow<Self::X> + Sized,
+        B2: SampleBorrow<Self::X> + Sized,
+    {
+        let low = *low_b.borrow();
+        let high = *high_b.borrow();
+
+        UniformCamHue {
+            hue: Uniform::new_inclusive(
+                CamHue::to_positive_degrees(low),
+                CamHue::to_positive_degrees(high),
+            ),
+        }
+    }
+
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> CamHue<T> {
+        CamHue::from(self.hue.sample(rng) * from_f64(360.0))
+    }
 }
 
 #[cfg(feature = "random")]
